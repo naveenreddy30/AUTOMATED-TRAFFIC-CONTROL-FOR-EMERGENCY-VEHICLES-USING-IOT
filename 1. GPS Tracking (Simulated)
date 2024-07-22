@@ -1,0 +1,16 @@
+import random
+import time
+
+class EmergencyVehicle:
+    def __init__(self, id):
+        self.id = id
+        self.latitude = 0.0
+        self.longitude = 0.0
+
+    def update_location(self):
+        # Simulate GPS updates
+        self.latitude += random.uniform(-0.001, 0.001)
+        self.longitude += random.uniform(-0.001, 0.001)
+
+    def get_location(self):
+        return {'id': self.id, 'latitude': self.latitude, 'longitude': self.longitude}
