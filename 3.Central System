@@ -1,0 +1,61 @@
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# Data stores
+vehicles = {}
+traffic_lights = {}
+
+@app.route('/gps', methods=['POST'])
+def update_gps():
+    data = request.form
+    vehicle_id = data['id']
+    latitude = data['latitude']
+    longitude = data['longitude']
+    vehicles[vehicle_id] = {'latitude': latitude, 'longitude': longitude}
+    return jsonify(success=True)
+
+@app.route('/traffic_light/<int:light_id>', methods=['GET'])
+def get_traffic_light_state(light_id):
+    # Logic to determine the traffic light state based on vehicle positions
+    # This is a simplified example
+    if vehicles:  # Check if there are any vehicles
+        state = 'GREEN'
+    else:
+        state = 'RED'
+    return jsonify(state=state)
+
+def detect_conflicts():
+    # Example conflict detection logic
+    # In real scenarios, use precise location data and consider the road layout
+    for i in range(len(vehicles)):
+        for j in range(i + 1, len(vehicles)):
+            if abs(vehicles[i]['latitude'] - vehicles[j]['latitude']) < 0.01 and abs(vehicles[i]['longitude'] - vehicles[j]['longitude']) < 0.01:
+                return (vehicles[i], vehicles[j])
+    return None
+
+def resolve_conflicts(vehicle1, vehicle2):
+    # Resolve conflicts by prioritizing the vehicle with higher priority
+    # Simplified logic: prioritize by vehicle ID
+    if vehicle1['id'] > vehicle2['id']:
+        return vehicle1
+    else:
+        return vehicle2
+
+@app.route('/process', methods=['POST'])
+def process_traffic():
+    conflict = detect_conflicts()
+    if conflict:
+        vehicle1, vehicle2 = conflict
+        prioritized_vehicle = resolve_conflicts(vehicle1, vehicle2)
+        print(f"Prioritizing vehicle {prioritized_vehicle['id']}")
+        # Update traffic lights accordingly
+        for light_id in traffic_lights.keys():
+            traffic_lights[light_id] = 'GREEN'
+    else:
+        for light_id in traffic_lights.keys():
+            traffic_lights[light_id] = 'RED'
+    return jsonify(success=True)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
