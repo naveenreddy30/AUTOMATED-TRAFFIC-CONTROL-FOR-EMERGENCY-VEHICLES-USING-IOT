@@ -1,0 +1,25 @@
+import requests
+import time
+
+def get_traffic_light_command(traffic_light_id):
+    url = f"http://your-server-endpoint/traffic_light/{traffic_light_id}"
+    response = requests.get(url)
+    return response.json()['state']
+
+def change_traffic_light_state(state):
+    # Implement the logic to change the traffic light state
+    # Example: Use GPIO pins to control the light
+    if state == 'GREEN':
+        # Set GPIO pin to high to turn on green light
+        pass
+    elif state == 'RED':
+        # Set GPIO pin to high to turn on red light
+        pass
+    # Add more states as needed
+
+traffic_light_id = 101
+
+while True:
+    state = get_traffic_light_command(traffic_light_id)
+    change_traffic_light_state(state)
+    time.sleep(1)  # Polling interval
