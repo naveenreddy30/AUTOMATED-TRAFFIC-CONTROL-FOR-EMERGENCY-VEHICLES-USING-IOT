@@ -1,16 +1,29 @@
-import random
+import serial
+import requests
 import time
 
-class EmergencyVehicle:
-    def __init__(self, id):
-        self.id = id
-        self.latitude = 0.0
-        self.longitude = 0.0
+# Configure the serial connection to the GPS module
+gps_serial = serial.Serial('/dev/ttyUSB0', baudrate=9600, timeout=1)
 
-    def update_location(self):
-        # Simulate GPS updates
-        self.latitude += random.uniform(-0.001, 0.001)
-        self.longitude += random.uniform(-0.001, 0.001)
+def get_gps_data():
+    data = gps_serial.readline().decode('ascii', errors='replace')
+    return data
 
-    def get_location(self):
-        return {'id': self.id, 'latitude': self.latitude, 'longitude': self.longitude}
+def parse_gps_data(raw_data):
+    # Implement the parsing logic for the GPS data
+    # Example: Extracting latitude and longitude from raw data
+    latitude, longitude = extract_lat_lon_from_raw_data(raw_data)  # Define this function to parse data
+    return latitude, longitude
+
+def send_gps_data(latitude, longitude, vehicle_id):
+    url = "http://your-server-endpoint/gps"
+    payload = {'id': vehicle_id, 'latitude': latitude, 'longitude': longitude}
+    requests.post(url, data=payload)
+
+vehicle_id = 1
+
+while True:
+    gps_data = get_gps_data()
+    latitude, longitude = parse_gps_data(gps_data)
+    send_gps_data(latitude, longitude, vehicle_id)
+    time.sleep(1)  # Adjust the interval as needed
